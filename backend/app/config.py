@@ -18,6 +18,10 @@ class Settings(BaseSettings):
     base_url: str = "http://localhost:8000"
     frontend_origin: str = "http://localhost:3000"
 
+    # Optional: set PEXELS_API_KEY in .env to make generated images topical
+    # (search/topic pages). Without it the feed uses keyless Lorem Picsum.
+    pexels_api_key: str = ""
+
     upload_dir: Path = BASE_DIR / "uploads"
 
     @property

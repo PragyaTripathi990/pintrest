@@ -10,6 +10,7 @@ from ..deps import get_current_user, get_current_user_optional
 from ..models import Board, Pin, Reaction, Save, User
 from ..schemas import PinOut, PinPage, PinUpdate, ReactionRequest, SaveRequest
 from ..serializers import serialize_pin, serialize_pins
+from ..services.feed_generator import generate_pins
 from ..services.images import process_image_bytes
 
 router = APIRouter(prefix="/api/pins", tags=["pins"])
@@ -23,6 +24,11 @@ def feed(
     viewer: User | None = Depends(get_current_user_optional),
 ):
     limit = min(max(limit, 1), 50)
+    # On the first page (a fresh load/refresh), mint a new batch of pins so the
+    # feed is different every time and infinite scroll never runs dry. Later
+    # pages just paginate the existing pool (stable cursors).
+    if not cursor:
+        generate_pins(db, 30)
     stmt = select(Pin).order_by(Pin.id.desc()).limit(limit + 1)
     if cursor:
         stmt = stmt.where(Pin.id < cursor)

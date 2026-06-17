@@ -7,6 +7,7 @@ from ..deps import get_current_user_optional
 from ..models import Pin, PinTopic, Topic, User
 from ..schemas import PinPage, TopicOut
 from ..serializers import serialize_pins, serialize_topic
+from ..services.feed_generator import generate_pins
 
 router = APIRouter(prefix="/api", tags=["search"])
 
@@ -78,7 +79,22 @@ def search_pins(
         # Match the query against topic names (plus any aliases)
         fragments = [term] + SEARCH_ALIASES.get(term.lower(), [])
         topic_conds = [Topic.name.ilike(f"%{f}%") for f in fragments]
-        topic_ids = db.execute(select(Topic.id).where(or_(*topic_conds))).scalars().all()
+        matched = db.execute(select(Topic).where(or_(*topic_conds))).scalars().all()
+        topic_ids = [t.id for t in matched]
+
+        # On the first page, mint fresh results for this query so every search
+        # shows new images (topical via Pexels if a key is set). If a topic
+        # matched, tag the new pins to it; otherwise force the title so the
+        # title-match below still finds them.
+        if not cursor:
+            generate_pins(
+                db,
+                30,
+                topics=matched or None,
+                query=term,
+                topical=True,
+                title=None if matched else term,
+            )
 
         conditions = [
             Pin.title.ilike(like),
@@ -136,6 +152,9 @@ def topic_pins(
     topic = db.execute(select(Topic).where(Topic.slug == slug)).scalar_one_or_none()
     if not topic:
         return {"items": [], "next_cursor": None}
+    # First page: mint a fresh batch tagged to this topic (topical via Pexels).
+    if not cursor:
+        generate_pins(db, 30, topics=[topic], query=topic.name, topical=True)
     stmt = (
         select(Pin)
         .join(PinTopic, PinTopic.pin_id == Pin.id)
