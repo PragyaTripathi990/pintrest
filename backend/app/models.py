@@ -79,11 +79,11 @@ class Pin(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     uploader_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
 
-    title: Mapped[str] = mapped_column(String(200), default="")
-    description: Mapped[str] = mapped_column(Text, default="")
-    alt_text: Mapped[str] = mapped_column(String(500), default="")
-    link: Mapped[str] = mapped_column(String(500), default="")
-    source_name: Mapped[str] = mapped_column(String(120), default="")
+    # title: Mapped[str] = mapped_column(String(200), default="")
+    # description: Mapped[str] = mapped_column(Text, default="")
+    # alt_text: Mapped[str] = mapped_column(String(500), default="")
+    # link: Mapped[str] = mapped_column(String(500), default="")
+    # source_name: Mapped[str] = mapped_column(String(120), default="")
 
     image: Mapped[str] = mapped_column(String(255))  # stored filename or external URL
     width: Mapped[int] = mapped_column(Integer, default=0)

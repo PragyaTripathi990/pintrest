@@ -5,9 +5,9 @@ from . import models
 from .utils import media_url
 
 
-def user_brief(u: models.User | None) -> dict:
-    if u is None:
-        return {"id": 0, "username": "unknown", "full_name": "", "avatar": None}
+# def user_brief(u: models.User | None) -> dict:
+#     if u is None:
+#         return {"id": 0, "username": "unknown", "full_name": "", "avatar": None}
     return {
         "id": u.id,
         "username": u.username,

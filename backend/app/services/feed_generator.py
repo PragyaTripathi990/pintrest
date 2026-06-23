@@ -55,9 +55,9 @@ def _picsum_url(seed: str, w: int, h: int) -> str:
     return f"https://picsum.photos/seed/{seed}/{w}/{h}"
 
 
-def _pexels_photos(query: str, count: int) -> list[dict]:
-    """Up to ``count`` topical photos for a query via Pexels; ``[]`` on any issue."""
-    key = settings.pexels_api_key
+#def _pexels_photos(query: str, count: int) -> list[dict]:
+   # """Up to ``count`` topical photos for a query via Pexels; ``[]`` on any issue."""
+   # key = settings.pexels_api_key
     if not key or not query:
         return []
     try:
@@ -73,12 +73,12 @@ def _pexels_photos(query: str, count: int) -> list[dict]:
             timeout=10,
         )
         resp.raise_for_status()
-        out: list[dict] = []
+      #  out: list[dict] = []
         for p in resp.json().get("photos", []):
-            src = p.get("src", {})
+        #    src = p.get("src", {})
             url = src.get("large") or src.get("medium") or src.get("original")
             if not url:
-                continue
+          #      continue
             out.append(
                 {
                     "url": url,
@@ -89,7 +89,7 @@ def _pexels_photos(query: str, count: int) -> list[dict]:
             )
         return out
     except Exception:  # noqa: BLE001 — image sourcing must never break the feed
-        return []
+        return []#
 
 
 def _title_for(topic: Topic | None, fallback: str | None) -> str:
